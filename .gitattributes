@@ -1,0 +1,4 @@
+# Exclude images from release archives (git archive)
+images/ export-ignore
+*.gif export-ignore
+*.png export-ignore
