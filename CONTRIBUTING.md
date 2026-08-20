@@ -36,7 +36,7 @@ git clone https://github.com/YOUR_USERNAME/npp-sdk.git
 cd npp-sdk
 
 # 添加上游仓库
-git remote add upstream https://gitee.com/perception-engine/npp-sdk.git
+git remote add upstream https://gitee.com/Silicon-Perception/npp-sdk.git
 
 # 创建分支
 git checkout -b feature/your-feature-name
@@ -87,7 +87,7 @@ git push origin feature/your-feature-name
 
 ### 开源部分Bug
 
-通过 [Gitee Issues](https://gitee.com/perception-engine/npp-sdk/issues) 报告：
+通过 [Gitee Issues](https://gitee.com/Silicon-Perception/npp-sdk/issues) 报告：
 
 ```markdown
 **描述**: 简述问题

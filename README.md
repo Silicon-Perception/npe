@@ -242,27 +242,48 @@ npp-sdk/
 
 ## 🚀 Quick Start
 
-### Compile & Install
+### 1. Download SDK
+
 ```bash
-git clone https://gitee.com/perception-engine/npp-sdk.git
-cd npp-sdk
-make
-sudo make install
+git clone https://gitee.com/Silicon-Perception/npe.git
+cd npe
 ```
 
-### Run Examples
-```bash
-# Start receiver
-./build/examples/demo_quiet_pipes receiver
+### 2. Use Pre-compiled Library
 
-# Start sender (new terminal)
-./build/examples/demo_quiet_pipes sender
+```c
+// Only need to include one header file!
+#include <npp.h>
+
+int main() {
+    // Create session configuration
+    npp_session_config_t cfg = {
+        .transport = NPP_TRANSPORT_UDP,
+        .local_port = 8888,
+        .remote_port = 9999,
+        .remote_addr = "192.168.1.100"
+    };
+    
+    // Create session
+    npp_session_t* session;
+    npp_session_create(&session, &cfg);
+    npp_session_connect(session);
+    
+    // Write data
+    uint8_t data[] = {1, 2, 3, 4};
+    npp_pipe_write(session, 0, data, sizeof(data));
+    
+    // Cleanup
+    npp_session_destroy(session);
+    return 0;
+}
 ```
 
-### Protocol Migration
+### 3. Compile & Run
+
 ```bash
-# Auto-convert existing C struct protocol to NPP pipeline code
-python tools/protocol_migrator.py my_protocol.h my_npp_code.c --sender
+gcc -o my_app my_app.c -I./include -L./lib -lnpp
+./my_app
 ```
 
 ---
@@ -291,11 +312,11 @@ This project uses **semi-open-source license**:
 
 ## 📧 Contact
 
-- Primary Repository (China): https://gitee.com/perception-engine/npe
-- Mirror (Global): https://github.com/perception-engine/npe
+- Primary Repository (China): https://gitee.com/Silicon-Perception/npe
+- Mirror (Global): https://github.com/Silicon-Perception/npe
 - Commercial License: alphache@163.com
 - Technical Documentation: [System Design Document](./docs/system-design.md)
-- Ecosystem Discussion: https://gitee.com/perception-engine/npe/discussions
+- Ecosystem Discussion: https://gitee.com/Silicon-Perception/npe/discussions
 
 ---
 

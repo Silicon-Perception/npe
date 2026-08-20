@@ -6,7 +6,7 @@
 
 ### 方式1：从GitHub Release下载（推荐）
 
-访问：https://gitee.com/perception-engine/npp-sdk/releases
+访问：https://gitee.com/Silicon-Perception/npp-sdk/releases
 
 下载对应版本的附件包，解压后覆盖本目录。
 

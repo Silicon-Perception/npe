@@ -242,27 +242,48 @@ npp-sdk/
 
 ## 🚀 快速开始
 
-### 编译安装
+### 1. 下载SDK
+
 ```bash
-git clone https://gitee.com/perception-engine/npp-sdk.git
-cd npp-sdk
-make
-sudo make install
+git clone https://gitee.com/Silicon-Perception/npe.git
+cd npe
 ```
 
-### 运行示例
-```bash
-# 启动接收端
-./build/examples/demo_quiet_pipes receiver
+### 2. 使用预编译库
 
-# 启动发送端（新终端）
-./build/examples/demo_quiet_pipes sender
+```c
+// 只需要包含一个头文件！
+#include <npp.h>
+
+int main() {
+    // 创建会话配置
+    npp_session_config_t cfg = {
+        .transport = NPP_TRANSPORT_UDP,
+        .local_port = 8888,
+        .remote_port = 9999,
+        .remote_addr = "192.168.1.100"
+    };
+    
+    // 创建会话
+    npp_session_t* session;
+    npp_session_create(&session, &cfg);
+    npp_session_connect(session);
+    
+    // 写入数据
+    uint8_t data[] = {1, 2, 3, 4};
+    npp_pipe_write(session, 0, data, sizeof(data));
+    
+    // 清理
+    npp_session_destroy(session);
+    return 0;
+}
 ```
 
-### 协议迁移
+### 3. 编译运行
+
 ```bash
-# 将现有C结构体协议自动转换为NPP铺设代码
-python tools/protocol_migrator.py my_protocol.h my_npp_code.c --sender
+gcc -o my_app my_app.c -I./include -L./lib -lnpp
+./my_app
 ```
 
 ---
@@ -291,10 +312,10 @@ python tools/protocol_migrator.py my_protocol.h my_npp_code.c --sender
 
 ## 📧 联系我们
 
-- 主仓库（国内推荐）：https://gitee.com/perception-engine/npe
+- 主仓库（国内推荐）：https://gitee.com/Silicon-Perception/npe
 - 商业授权：alphache@163.com
 - 技术文档：[系统设计文档](./docs/system-design.md)
-- 镜像仓库（海外）：https://github.com/perception-engine/npe
+- 镜像仓库（海外）：https://github.com/Silicon-Perception/npe
 
 ---
 

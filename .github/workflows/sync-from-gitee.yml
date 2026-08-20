@@ -20,7 +20,7 @@ jobs:
           GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
         run: |
           # 添加Gitee远程仓库
-          git remote add gitee https://perception-engine:${GITEE_TOKEN}@gitee.com/perception-engine/npe.git 2>/dev/null || true
+          git remote add gitee https://Silicon-Perception:${GITEE_TOKEN}@gitee.com/Silicon-Perception/npe.git 2>/dev/null || true
           
           # 拉取Gitee最新代码
           git fetch gitee main
