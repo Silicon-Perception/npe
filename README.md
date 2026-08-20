@@ -86,6 +86,29 @@ NPP is based on NPE (Natural Pipeline Engine) architecture, transforming network
 
 ---
 
+## 🏗️ Protocol Layering
+
+NPP operates at the **Application Layer**, running on top of existing transport protocols:
+
+```
+┌─────────────────────────────────────────┐
+│  Application Layer: NPP (this protocol) │  ← You are here
+├─────────────────────────────────────────┤
+│  Transport Layer: UDP / TCP             │
+├─────────────────────────────────────────┤
+│  Network Layer: IP                      │
+└─────────────────────────────────────────┘
+```
+
+NPP does **NOT** replace UDP/TCP. It provides:
+- **State synchronization**: Change-only transmission, no redundant data
+- **Pipe multiplexing**: Up to 512 independent data channels per session
+- **Self-healing**: Automatic full-state SYNC after reconnection
+
+See [Protocol Overview](./docs/PROTOCOL_OVERVIEW.md) for frame format, reliability model, and security details.
+
+---
+
 ## 🔥 Core Superpowers
 
 NPP SDK encapsulates complex network communication into simple, powerful capabilities:
@@ -333,8 +356,16 @@ If you use this project in your research, please cite:
 - Primary Repository (China): https://gitee.com/Silicon-Perception/npe
 - Mirror (Global): https://github.com/Silicon-Perception/npe
 - Commercial License: alphache@163.com
-- Technical Documentation: [System Design Document](./docs/system-design.md)
 - Ecosystem Discussion: https://gitee.com/Silicon-Perception/npe/discussions
+
+## 📖 Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Quick Start](./docs/INTEGRATION_GUIDE.md) | 5-minute tutorial, API usage, troubleshooting |
+| [Protocol Overview](./docs/PROTOCOL_OVERVIEW.md) | Frame format, reliability, security, performance |
+| [System Design](./docs/system-design.md) | Architecture details |
+| [Changelog](./CHANGELOG.md) | Version history |
 
 <!--
 ---
