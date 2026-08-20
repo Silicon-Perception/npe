@@ -5,6 +5,8 @@ src/internal/
 build/
 *.o
 *.a
+!lib/*.a
+!lib/*.dylib
 
 # IDE
 .vscode/
