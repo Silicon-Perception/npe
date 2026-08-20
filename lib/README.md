@@ -1,42 +1,23 @@
-# lib/ 目录说明
+# lib/ Pre-compiled Libraries
 
-本目录包含NPP SDK闭源部分的预编译二进制库。
+This directory contains pre-compiled static libraries for NPP SDK closed-source components.
 
-## 获取方式
+## Available Libraries
 
-### 方式1：从GitHub Release下载（推荐）
+| File | Platform | Size |
+|------|----------|------|
+| `libnpp.a` | Linux/macOS Static | 66K |
+| `libnpe.a` | Linux/macOS Static | 99K |
+| `libnpe.4.1.0.dylib` | macOS Dynamic | 75K |
+| `libnpe_mcu.a` | MCU (Embedded) | 7.3K |
 
-访问：https://gitee.com/Silicon-Perception/npp-sdk/releases
+## Usage
 
-下载对应版本的附件包，解压后覆盖本目录。
-
-### 方式2：运行下载脚本
+### Link Static Library
 
 ```bash
-./scripts/download_libs.sh
+gcc -o my_app my_app.c -I./include -L./lib -lnpp
 ```
-
-## 文件说明
-
-| 文件 | 说明 |
-|------|------|
-| `libnpp.a` | Linux/macOS静态库 |
-| `libnpp.so` | Linux动态库 |
-| `libnpp.dylib` | macOS动态库 |
-| `libnpp.dll` | Windows动态库 |
-| `checksums.sha256` | SHA256校验和 |
-
-## 版本匹配
-
-确保下载的二进制版本与 `include/npp.h` 中定义的版本号一致：
-
-```c
-#define NPP_VERSION_MAJOR 1
-#define NPP_VERSION_MINOR 4
-#define NPP_VERSION_PATCH 0
-```
-
-## 链接方式
 
 ### CMake
 ```cmake
@@ -48,7 +29,12 @@ target_link_libraries(your_app ${NPP_SDK_DIR}/lib/libnpp.a)
 LDFLAGS += -L$(NPP_SDK_DIR)/lib -lnpp
 ```
 
-## 许可证
+## Version
 
-本目录下的预编译二进制受商业授权保护。
-个人/学术使用免费，商业使用需联系 alphache@163.com 获取授权。
+NPP SDK v2.0.2
+
+## License
+
+Pre-compiled binaries are commercially licensed.
+- Personal/Academic use: Free
+- Commercial use: Contact alphache@163.com
