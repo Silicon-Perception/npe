@@ -336,6 +336,7 @@ If you use this project in your research, please cite:
 - Technical Documentation: [System Design Document](./docs/system-design.md)
 - Ecosystem Discussion: https://gitee.com/Silicon-Perception/npe/discussions
 
+<!--
 ---
 
 ## 💝 Support This Project
@@ -345,6 +346,8 @@ If NPP SDK is helpful to you, please consider supporting us:
 | Alipay | WeChat Pay |
 |--------|------------|
 | ![Alipay](images/alipay_pay.png) | ![WeChat](images/wechat_pay.png) |
+-->
+
 
 ---
 

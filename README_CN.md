@@ -335,6 +335,7 @@ gcc -o my_app my_app.c -I./include -L./lib -lnpp
 - 技术文档：[系统设计文档](./docs/system-design.md)
 - 镜像仓库（海外）：https://github.com/Silicon-Perception/npe
 
+<!--
 ---
 
 ## 💝 支持本项目
@@ -344,6 +345,8 @@ gcc -o my_app my_app.c -I./include -L./lib -lnpp
 | 支付宝 | 微信支付 |
 |--------|----------|
 | ![支付宝](images/alipay_pay.png) | ![微信](images/wechat_pay.png) |
+-->
+
 
 ---
 
