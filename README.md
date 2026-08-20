@@ -8,6 +8,8 @@
 [![C](https://img.shields.io/badge/C-99-blue.svg)](https://en.wikipedia.org/wiki/C99)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20MCU-green.svg)]()
 [![Build](https://img.shields.io/badge/Build-CMake-blue.svg)]()
+[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21844224-blue.svg)](https://zenodo.org/doi/10.5281/zenodo.21844224)
+[![ORCID](https://img.shields.io/badge/ORCID-0009--0007--6411--7426-green)](https://orcid.org/0009-0007-6411-7426)
 
 [English](./README.md) | [中文](./README_CN.md)
 
@@ -307,6 +309,22 @@ This project uses **semi-open-source license**:
 - Closed-source parts (src/core implementation) require commercial license
 - See [LICENSE](./LICENSE) for details
 - Copyright: Jinhui Wu, ORCID: 0009-0007-6411-7426
+
+## 📄 Citation
+
+If you use this project in your research, please cite:
+
+```bibtex
+@software{npp_sdk_2026,
+  author       = {Jinhui Wu},
+  title        = {NPP SDK: High-Performance Network Communication Engine Based on NPE Architecture},
+  month        = aug,
+  year         = 2026,
+  publisher    = {Zenodo},
+  doi          = {10.5281/zenodo.21844224},
+  url          = {https://zenodo.org/doi/10.5281/zenodo.21844224}
+}
+```
 
 ---
 
