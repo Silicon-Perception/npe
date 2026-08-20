@@ -1,0 +1,46 @@
+# Build artifacts
+build/
+cmake-build-*/
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Compiled binaries
+*.bin
+*.hex
+*.elf
+
+# Generated files
+*.log
+*.tmp
+
+# Package files
+*.tar.gz
+*.zip
+*.7z
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# Release artifacts (closed-source)
+lib/*.a
+lib/*.so
+!lib/README.md

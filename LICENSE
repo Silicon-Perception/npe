@@ -1,0 +1,27 @@
+NPP SDK Semi-Open Source License
+
+Copyright (c) 2026 吴金辉 (Jinhui Wu). All rights reserved.
+
+1. 开源部分（允许自由使用、修改、分发，包括商用）：
+   - include/ 目录下所有头文件
+   - tests/ 目录下所有测试代码
+   - examples/ 目录下所有示例代码
+   - 文档类内容（docs/ 目录）
+   遵循 MIT 开源协议：
+   Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+   The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+2. 闭源部分（需获得商业授权后方可使用）：
+   - src/core/ 目录下所有核心实现
+   - src/multicast/ 目录下多播模块实现
+   - src/adaptive/ 目录下自适应模块实现
+   - src/pipe/ 目录下管道调度实现
+   - src/session/ 目录下会话管理实现
+   - src/transport/ 目录下传输层实现
+   - src/npp_object.c 核心对象实现
+   未经授权，禁止复制、修改、分发、反编译、反向工程上述闭源内容。如需商业授权，请联系：alphache@163.com
+
+3. 任何使用NPP SDK开发的应用，需要保留NPE项目的版权声明，并在应用说明中注明基于NPE架构构建。
+
+4. 本许可协议的解释权归NPE项目所有。

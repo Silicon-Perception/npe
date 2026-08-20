@@ -1,0 +1,22 @@
+# main组件CMakeLists.txt
+idf_component_register(
+    SRCS 
+        "../src/core/npp_core.c"
+        "../src/core/npp_error.c"
+        "../src/core/npp_log.c"
+        "../src/core/wake_pipe.c"
+        "../src/npp_object.c"
+    INCLUDE_DIRS 
+        "../include"
+        "../src"
+    REQUIRES 
+        driver
+        esp_wifi
+        esp_timer
+        nvs_flash
+        spi_flash
+        esp_netif
+        esp_event
+        esp_common
+        hal
+)

@@ -1,0 +1,37 @@
+name: Sync from Gitee
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'    # 每6小时同步一次
+  workflow_dispatch:          # 支持手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Sync from Gitee
+        env:
+          GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
+        run: |
+          # 添加Gitee远程仓库
+          git remote add gitee https://perception-engine:${GITEE_TOKEN}@gitee.com/perception-engine/npe.git 2>/dev/null || true
+          
+          # 拉取Gitee最新代码
+          git fetch gitee main
+          
+          # 重置为Gitee的版本
+          git reset --hard gitee/main
+          
+          # 推送到GitHub
+          git push origin main --force
+          
+      - name: Sync Status
+        run: |
+          echo "✅ Sync completed at $(date)"
+          echo "Gitee main → GitHub main"
