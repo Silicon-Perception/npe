@@ -1,6 +1,6 @@
 # NPP SDK - Lightweight IoT Communication Protocol Stack
 
-> Pure C-language implementation of an open-source network communication protocol stack, featuring incremental transmission design for low-power, low-bandwidth IoT scenarios.
+> Pure C-language implementation of an open-source network communication protocol stack, featuring incremental transmission design for low-power, low-bandwidth IoT scenarios. NPP protocol targets sensor networks, edge computing, and similar use cases with simple API and efficient incremental transmission capabilities.
 
 <div align="center">
 
@@ -40,6 +40,10 @@ NPP is based on NPE (Natural Pipeline Engine) architecture, transforming network
 - Incremental transmission: only changed data is transmitted
 - No connection state management
 - Simple compare-and-update operations
+
+**NPP Design Features:**
+- **Silence is proof**: No data change indicates device is online (no explicit heartbeat needed)
+- **Incremental updates**: Core operations focus on detecting and transmitting changes
 
 ---
 
@@ -164,6 +168,16 @@ my_app.exe
 - **Incremental transmission**: Only changed data is transmitted
 - **Low overhead**: Minimal protocol overhead for small data packets
 - **Flexible**: Supports various IoT and embedded scenarios
+
+### Bandwidth Efficiency (Typical Scenarios)
+
+| Scenario | Polling Approach | NPP | Notes |
+|----------|-----------------|-----|-------|
+| Static (no changes) | Periodic queries | Near zero | No data change = minimal traffic |
+| Low activity | Periodic queries | Significantly lower | Only changed data transmitted |
+| High activity | Periodic queries | Lower | Incremental updates reduce overhead |
+
+*Actual results depend on specific use case, network conditions, and configuration.*
 
 ### Test Coverage
 
