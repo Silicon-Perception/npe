@@ -4,12 +4,12 @@
 
 <div align="center">
 
-[![License: MIT](https://img.shields.io/badge/License%20(开源)-MIT-yellow.svg)](LICENSE)](https://en.wikipedia.org/wiki/MIT_License)
+[![License: MIT](https://img.shields.io/badge/License%20(开源)-MIT-yellow.svg)](LICENSE)
 [![C](https://img.shields.io/badge/C-99-blue.svg)](https://en.wikipedia.org/wiki/C99)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20MCU-green.svg)]()
 [![Build](https://img.shields.io/badge/Build-CMake-blue.svg)]()
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21844224-blue.svg)](https://zenodo.org/doi/10.5281/zenodo.21844224)
-[![ORCID](https://img.shields.io/badge/ORCID-0009--0007--6411--7426-green)](https://orcid.org/0009-0007-6411-7426)
+[![ORCID](https://img.shields.io/badge/ORCID-0009--0007-6411--7426-green)](https://orcid.org/0009-0007-6411-7426)
 
 [English](./README.md) | [中文](./README_CN.md)
 
@@ -361,10 +361,11 @@ gcc -o my_app my_app.c -I./include -L./lib -lnpp
 
 | 文档 | 说明 |
 |------|------|
-| [快速开始](./docs/INTEGRATION_GUIDE.md) | 5分钟教程、API 使用、故障排除 |
-| [协议规范](./docs/PROTOCOL_OVERVIEW.md) | 帧格式、可靠性、安全、性能 |
+| [快速开始](./docs/INTEGRATION_GUIDE_CN.md) | 5分钟教程、API 使用、故障排除 |
+| [协议规范](./docs/PROTOCOL_OVERVIEW_CN.md) | 帧格式、可靠性、安全、性能 |
 | [系统设计](./docs/system-design.md) | 架构细节 |
 | [更新日志](./CHANGELOG.md) | 版本历史 |
+| [English Docs](./docs/INTEGRATION_GUIDE.md) | English documentation |
 
 <!--
 ---

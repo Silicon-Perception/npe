@@ -4,7 +4,7 @@
 
 <div align="center">
 
-[![License: MIT](https://img.shields.io/badge/License%20(Open%20Source)-MIT-yellow.svg)](LICENSE)](https://en.wikipedia.org/wiki/MIT_License)
+[![License: MIT](https://img.shields.io/badge/License%20(Open%20Source)-MIT-yellow.svg)](LICENSE)
 [![C](https://img.shields.io/badge/C-99-blue.svg)](https://en.wikipedia.org/wiki/C99)
 [![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20MCU-green.svg)]()
 [![Build](https://img.shields.io/badge/Build-CMake-blue.svg)]()
@@ -366,6 +366,7 @@ If you use this project in your research, please cite:
 | [Protocol Overview](./docs/PROTOCOL_OVERVIEW.md) | Frame format, reliability, security, performance |
 | [System Design](./docs/system-design.md) | Architecture details |
 | [Changelog](./CHANGELOG.md) | Version history |
+| [中文文档](./docs/INTEGRATION_GUIDE_CN.md) | 中文版集成指南 |
 
 <!--
 ---
