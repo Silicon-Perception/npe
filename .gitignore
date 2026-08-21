@@ -14,3 +14,4 @@ build/
 
 # OS
 .DS_Store
+push_to_github.sh
