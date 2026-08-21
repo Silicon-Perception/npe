@@ -1,73 +1,79 @@
+/*
+ * Copyright (c) 2026 吴金辉 (Jinhui Wu). All rights reserved.
+ * NPP SDK Sensor Simulation Example
+ *
+ * Simulates a temperature/humidity sensor that:
+ * - Sends data periodically via NPP pipes
+ * - Demonstrates pipe read/write
+ * - Shows session lifecycle
+ */
+
 #include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
+#include <string.h>
 #include <time.h>
-#include "npp_object.h"
-#include "core/wake_pipe.h"
-#include "adaptive/adaptive.h"
+#include <npp.h>
 
-/* 定义传感器对象 */
-NPP_OBJECT(EnvironmentSensor) {
-    NPP_PROPERTY(float, temperature);
-    NPP_PROPERTY(float, humidity);
-    NPP_PROPERTY(float, pressure);
-} NPP_OBJECT_END;
+/* Simulated sensor data */
+typedef struct {
+    float temperature;
+    float humidity;
+} sensor_data_t;
 
-/* 温度变化回调 */
-void on_temperature_changed(float new_val, float old_val, void* user_data) {
-    printf("🌡️ 温度变化: %.1f°C → %.1f°C\n", old_val, new_val);
-    if (new_val > 35.0) {
-        printf("⚠️ 高温警报！\n");
-    } else if (new_val < 5.0) {
-        printf("⚠️ 低温警报！\n");
+/* Callback for receiving commands on pipe #10 */
+static void on_command_received(uint32_t pipe_id, const uint8_t* data, uint32_t len, void* user_data) {
+    (void)user_data;
+    printf("Command on pipe %u: %.*s\n", pipe_id, (int)len, (char*)data);
+}
+
+int main(int argc, char* argv[]) {
+    (void)argc; (void)argv;
+
+    printf("=== NPP Sensor Simulation ===\n");
+
+    /* 1. Configure session */
+    npp_session_config_t cfg = {
+        .transport = NPP_TRANSPORT_UDP,
+        .local_port = 8889,
+        .remote_port = 9999,
+        .remote_addr = "127.0.0.1"
+    };
+
+    /* 2. Create session */
+    npp_session_t* session = NULL;
+    npp_err_t err = npp_session_create(&session, &cfg);
+    if (err != NPP_OK) {
+        printf("Failed to create session: %d\n", err);
+        return 1;
     }
-}
 
-/* 湿度变化回调 */
-void on_humidity_changed(float new_val, float old_val, void* user_data) {
-    printf("💧 湿度变化: %.1f%% → %.1f%%\n", old_val, new_val);
-}
+    /* 3. Register callback for command pipe (#10) */
+    npp_pipe_on_data(session, 10, on_command_received, NULL);
 
-/* 唤醒回调 */
-void wake_callback(npp_wake_type_t type, uint32_t profile_id, void* user_data) {
-    EnvironmentSensor* sensor = (EnvironmentSensor*)user_data;
-    printf("🔔 设备唤醒，类型: %d，画像ID: %d\n", type, profile_id);
-    
-    /* 模拟读取传感器数据 */
-    float new_temp = 20.0f + (rand() % 150) / 10.0f;
-    float new_humidity = 40.0f + (rand() % 400) / 10.0f;
-    
-    npp_set(sensor, "temperature", new_temp);
-    npp_set(sensor, "humidity", new_humidity);
-}
+    /* 4. Connect */
+    npp_session_connect(session);
+    printf("Connected (port %d)\n", cfg.local_port);
 
-int main() {
-    srand(time(NULL));
-    printf("===== NPP 传感器示例 =====\n");
-    
-    /* 初始化传感器对象 */
-    EnvironmentSensor sensor;
-    npp_object_init(&sensor, "env_sensor_001", NULL);
-    
-    /* 初始化唤醒管道 */
-    npp_wake_pipe_t wake_pipe;
-    npp_wake_pipe_init(&wake_pipe, NPP_STRATEGY_ON_DEMAND);
-    npp_wake_pipe_register_profile(&wake_pipe, 1001, 0.1f);
-    npp_wake_pipe_set_callback(&wake_pipe, wake_callback, &sensor);
-    npp_adaptive_init(&wake_pipe, NPP_ADAPTIVE_TEMPLATE_SENSOR);
-    npp_wake_pipe_start_listen(&wake_pipe);
-    
-    /* 注册属性变化回调 */
-    npp_on_change(&sensor, "temperature", on_temperature_changed, NULL);
-    npp_on_change(&sensor, "humidity", on_humidity_changed, NULL);
-    
-    /* 模拟运行 */
-    for (int i = 0; i < 10; i++) {
-        printf("\n--- 第%d次循环 ---\n", i + 1);
-        npp_poll(&sensor);
-        sleep(1);
+    /* 5. Simulate sensor readings on pipes 0-1 */
+    srand((unsigned)time(NULL));
+    sensor_data_t sensors[2];
+
+    for (int i = 0; i < 5; i++) {
+        /* Simulate temperature reading on pipe 0 */
+        sensors[0].temperature = 20.0f + (rand() % 150) / 10.0f;
+        npp_pipe_write(session, 0, (const uint8_t*)&sensors[0].temperature, sizeof(float));
+
+        /* Simulate humidity reading on pipe 1 */
+        sensors[0].humidity = 40.0f + (rand() % 400) / 10.0f;
+        npp_pipe_write(session, 1, (const uint8_t*)&sensors[0].humidity, sizeof(float));
+
+        printf("Iteration %d: temp=%.1f humidity=%.1f\n",
+               i + 1, sensors[0].temperature, sensors[0].humidity);
     }
-    
-    printf("\n✅ 示例运行完成\n");
+
+    /* 6. Cleanup */
+    npp_session_disconnect(session);
+    npp_session_destroy(session);
+
+    printf("=== Example completed ===\n");
     return 0;
 }

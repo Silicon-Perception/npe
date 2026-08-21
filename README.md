@@ -70,11 +70,11 @@ NPP is based on NPE (Natural Pipeline Engine) architecture, transforming network
 
 ### 🔓 Semi-Open-Source Mode: Balancing Ecosystem and IP Protection
 - **Closed-source core**: Core protocol layer, wake-up scheduling, adaptive algorithms — protected intellectual property
-- **Open-source upper layer**: Minimal API, NPP Object encapsulation, test cases, sample code, migration tools
+- **Open-source upper layer**: Minimal API, sample code, documentation
 - **Business-friendly**: Open-source parts under MIT license, closed-source parts available for commercial license
 
 ### ⚡ C Language Implementation: Performance and Cross-Platform
-- **Native performance**: Pure C implementation, 100x faster than Python/Java
+- **Native performance**: Pure C implementation
 - **Ultra-lightweight**: Minimum runtime <64KB ROM / 8KB RAM, runs on 8-bit MCUs to 64-bit servers
 - **Seamless integration**: Compatible with all C/C++ environments, embeddable in Linux/RTOS/Bare-Metal
 
@@ -109,126 +109,63 @@ See [Protocol Overview](./docs/PROTOCOL_OVERVIEW.md) for frame format, reliabili
 
 ---
 
-## 🔥 Core Superpowers
-
-NPP SDK encapsulates complex network communication into simple, powerful capabilities:
-
-### 🚀 Zero-Config Deployment
-```c
-// Just 3 lines of code to establish a complete network connection
-npp_object_init(&sensor, "sensor_001", NULL);
-npp_session_deploy(&sensor, 1);
-// Done! All communication handled automatically
-```
-
-### ⚡ Silence is Proof (Zero Bandwidth Heartbeat)
-- No data change = link completely silent
-- No heartbeat packets, no keep-alive traffic
-- **95%+ bandwidth savings** in static scenarios
-- Itself proof of device online
-
-### 🔄 State Self-Healing
-- Built-in SYNC/REQ_SYNC mechanism
-- Automatic full-state sync after reconnection
-- **<100ms** recovery time (vs 1-10s for traditional TCP)
-
-### 📡 Native Multicast
-- One wake-up for multiple devices
-- Single frame to thousands of terminals
-- **10x development efficiency** vs extra implementation needed
-
-### 💧 Smart Batch Delivery (Reservoir)
-- Accumulates multiple changes, delivers at once
-- Saves frame header overhead
-- Automatic adaptation to network conditions
-
-### 📡 Pipe Frequency Hopping
-- Pipe-level dynamic frequency hopping
-- Automatically switches channel on interference
-- Ensures reliable communication
-
-### 🔍 Full Auditability
-- All data changes traceable
-- Transparent and verifiable
-- Compliant with industrial/financial requirements
-
----
-
 ## 🛠️ Quick Start
 
-### 30-Second Demo: Define Network Object, Automatic Data Sync
+### Basic Example: Session and Pipe I/O
 
 ```c
-/* 1. Define network object, as simple as defining a struct */
-NPP_OBJECT(EnvironmentSensor) {
-    NPP_PROPERTY(float, temperature);  // Temperature, change threshold 0.1℃
-    NPP_PROPERTY(float, humidity);     // Humidity, change threshold 1%
-    NPP_PROPERTY(uint32_t, pm25);      // PM2.5, change threshold 1μg/m³
-} NPP_OBJECT_END;
+#include <npp.h>
 
 int main() {
-    /* 2. Initialize object and NPP session */
-    EnvironmentSensor sensor;
-    npp_object_init(&sensor, "sensor_001", NULL);
-    
-    /* 3. Register property change callback, auto-trigger network send */
-    npp_on_change(&sensor, "temperature", on_temp_changed, NULL);
-    
-    /* 4. Deploy session, automatic pipe setup and connection establishment */
-    npp_session_deploy(&sensor, 1); // 1=sender, 0=receiver
-    
-    /* 5. Normal read/write, NPP handles all communication logic automatically */
-    npp_set(&sensor, "temperature", 25.5f); // Auto-send if change exceeds threshold
-    npp_set(&sensor, "humidity", 60.0f);
-    
-    while(1) {
-        npp_poll(&sensor); // Handle network events, state sync
-        sleep(1);
-    }
+    /* 1. Configure session */
+    npp_session_config_t cfg = {
+        .transport = NPP_TRANSPORT_UDP,
+        .local_port = 8888,
+        .remote_port = 9999,
+        .remote_addr = "192.168.1.100"
+    };
+
+    /* 2. Create session */
+    npp_session_t* session;
+    npp_session_create(&session, &cfg);
+    npp_session_connect(session);
+
+    /* 3. Write data to pipe #0 (auto-transmits on change) */
+    uint8_t data[] = {1, 2, 3, 4};
+    npp_pipe_write(session, 0, data, sizeof(data));
+
+    /* 4. Cleanup */
+    npp_session_disconnect(session);
+    npp_session_destroy(session);
     return 0;
 }
 ```
 
-> Developers don't need to worry about heartbeat packets, retransmission, packet assembly, bandwidth optimization — NPP handles everything automatically.
+Compile and run:
+```bash
+gcc -o my_app my_app.c -I./include -L./lib -lnpp
+./my_app
+```
 
 ---
 
-## 📊 Performance Metrics (Verified Test Data)
+## 📊 Performance Characteristics
 
-### Compression Performance
+### Bandwidth Efficiency
 
-| Scene | Traditional JSON | NPP SDK | Compression Ratio |
-|-------|-----------------|---------|-------------------|
-| Static (no change) | ~990B | ~12B | **82x** |
-| Low frequency (10% change) | ~990B | ~50B | **20x** |
-| Medium frequency (30% change) | ~990B | ~150B | **6.6x** |
-| High frequency (70% change) | ~990B | ~350B | **2.8x** |
-
-### Bandwidth Savings
-
-| Pipe Type | Traditional MQTT | NPP | Savings |
-|-----------|-----------------|-----|---------|
-| Session-level (18 pipes) | Every frame | Silent after first frame | **99%** |
-| Frame-level (12 pipes) | Every frame | Only on change | **70-90%** |
-| Data-level (32 pipes) | Every frame | Only on change | **60-80%** |
-| **Total** | **~560B** | **~20-100B** | **60-90%** |
+| Scenario | Traditional MQTT | NPP | Savings |
+|----------|-----------------|-----|---------|
+| Static (no changes) | ~1KB/s | 0 | **~100%** |
+| Low activity (10% pipes) | ~1KB/s | ~50B/s | **95%** |
+| High activity (all pipes) | ~1KB/s | ~400B/s | **60%** |
 
 ### Test Coverage
 
-| Module | Test Cases | Pass Rate |
-|--------|-----------|-----------|
-| Schema Tests | 4 | 100% |
-| Frame Tests | 3 | 100% |
-| Crypto Tests | 2 | 100% |
-| Backend Tests | 3 | 100% |
-| Session Tests | 5 | 100% |
-| Server Tests | 5 | 100% |
-| Hopping Tests | 2 | 100% |
-| Reservoir Tests | 2 | 100% |
-| Coloring Tests | 1 | 100% |
-| **Total** | **186 assertions** | **100%** |
-
-> Data source: NPP SDK v2.0 official test report, 64-channel sensor real-time demo verified.
+| Module | Tests | Status |
+|--------|-------|--------|
+| Basic API | 8 | ✅ Passing |
+| Session Lifecycle | 5 | ✅ Passing |
+| Pipe I/O | 6 | ✅ Passing |
 
 ---
 
@@ -245,70 +182,30 @@ int main() {
 ## 📁 Project Structure
 
 ```
-npp-sdk/
+npe/
 ├── include/              // Public headers (open source, MIT license)
+│   └── npp.h             // Main public API
 ├── lib/                  // Pre-compiled binaries (closed source, commercial license)
-│   ├── libnpp.a          // Static library
-│   └── README.md         // Download instructions
+│   ├── libnpp.a          // NPP protocol static library
+│   ├── libnpe.a          // NPE engine static library
+│   └── README.md         // Library documentation
 ├── tests/                // Unit tests (open source, MIT license)
+│   ├── test_e2e.c        // Basic API tests
+│   └── test_wake.c       // Session/pipe tests
 ├── examples/             // Sample code (open source, MIT license)
-├── tools/                // Protocol migration tools (open source, MIT license)
-├── docs/                 // Design documents (open source, CC-BY license)
-├── scripts/              // Build scripts
-│   ├── build_release.sh  // Build pre-compiled binaries
-│   └── check_release.sh  // Pre-release check
-├── MAINTENANCE.md        // Maintenance manual
-├── RELEASE_CHECKLIST.md  // Release checklist
+│   ├── quick_start.c     // Basic session example
+│   └── example_sensor.c  // Sensor simulation
+├── docs/                 // Documentation
+│   ├── PROTOCOL_OVERVIEW.md    // Protocol specification
+│   ├── INTEGRATION_GUIDE.md    // Integration guide
+│   ├── PROTOCOL_OVERVIEW_CN.md // Chinese protocol spec
+│   ├── INTEGRATION_GUIDE_CN.md // Chinese integration guide
+│   ├── GETTING_STARTED.md      // Quick start tutorial
+│   └── FAQ.md                  // FAQ
+├── images/               // Demo GIFs and images
+├── CMakeLists.txt        // Build configuration
 ├── CONTRIBUTING.md       // Contribution guide
 └── LICENSE               // Semi-open-source license
-```
-
----
-
-## 🚀 Quick Start
-
-### 1. Download SDK
-
-```bash
-git clone https://gitee.com/Silicon-Perception/npe.git
-cd npe
-```
-
-### 2. Use Pre-compiled Library
-
-```c
-// Only need to include one header file!
-#include <npp.h>
-
-int main() {
-    // Create session configuration
-    npp_session_config_t cfg = {
-        .transport = NPP_TRANSPORT_UDP,
-        .local_port = 8888,
-        .remote_port = 9999,
-        .remote_addr = "192.168.1.100"
-    };
-    
-    // Create session
-    npp_session_t* session;
-    npp_session_create(&session, &cfg);
-    npp_session_connect(session);
-    
-    // Write data
-    uint8_t data[] = {1, 2, 3, 4};
-    npp_pipe_write(session, 0, data, sizeof(data));
-    
-    // Cleanup
-    npp_session_destroy(session);
-    return 0;
-}
-```
-
-### 3. Compile & Run
-
-```bash
-gcc -o my_app my_app.c -I./include -L./lib -lnpp
-./my_app
 ```
 
 ---
@@ -318,8 +215,7 @@ gcc -o my_app my_app.c -I./include -L./lib -lnpp
 We welcome developers to participate in NPP ecosystem building:
 1. Submit bug reports and suggestions
 2. Contribute sample code and demos
-3. Submit protocol migration rules to support more traditional protocol conversions
-4. Participate in upper-layer application development
+3. Participate in upper-layer application development
 
 Note: Core closed-source parts do not accept external PRs; contributions to open-source parts only.
 
@@ -328,8 +224,8 @@ Note: Core closed-source parts do not accept external PRs; contributions to open
 ## 📜 License
 
 This project uses **semi-open-source license**:
-- Open-source parts (include/tests/examples/tools/docs) follow MIT license
-- Closed-source parts (src/core implementation) require commercial license
+- Open-source parts (include/tests/examples/docs) follow MIT license
+- Closed-source parts (core implementation) require commercial license
 - See [LICENSE](./LICENSE) for details
 - Copyright: Jinhui Wu, ORCID: 0009-0007-6411-7426
 
@@ -356,30 +252,17 @@ If you use this project in your research, please cite:
 - Primary Repository (China): https://gitee.com/Silicon-Perception/npe
 - Mirror (Global): https://github.com/Silicon-Perception/npe
 - Commercial License: alphache@163.com
-- Ecosystem Discussion: https://gitee.com/Silicon-Perception/npe/discussions
 
 ## 📖 Documentation
 
 | Document | Description |
 |----------|-------------|
-| [Quick Start](./docs/INTEGRATION_GUIDE.md) | 5-minute tutorial, API usage, troubleshooting |
+| [Integration Guide](./docs/INTEGRATION_GUIDE.md) | 5-minute tutorial, API usage, troubleshooting |
 | [Protocol Overview](./docs/PROTOCOL_OVERVIEW.md) | Frame format, reliability, security, performance |
-| [System Design](./docs/system-design.md) | Architecture details |
-| [Changelog](./CHANGELOG.md) | Version history |
+| [Getting Started](./docs/GETTING_STARTED.md) | Quick start tutorial |
+| [FAQ](./docs/FAQ.md) | Frequently asked questions |
 | [中文文档](./docs/INTEGRATION_GUIDE_CN.md) | 中文版集成指南 |
-
-<!--
----
-
-## 💝 Support This Project
-
-If NPP SDK is helpful to you, please consider supporting us:
-
-| Alipay | WeChat Pay |
-|--------|------------|
-| ![Alipay](images/alipay_pay.png) | ![WeChat](images/wechat_pay.png) |
--->
-
+| [中文协议规范](./docs/PROTOCOL_OVERVIEW_CN.md) | 中文版协议规范 |
 
 ---
 

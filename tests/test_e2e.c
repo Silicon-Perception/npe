@@ -1,132 +1,138 @@
+/*
+ * Copyright (c) 2026 吴金辉 (Jinhui Wu). All rights reserved.
+ * NPP SDK Basic Tests
+ *
+ * Tests public API from npp.h:
+ * - Session create/destroy
+ * - Pipe write/read
+ * - Callback registration
+ * - Version string
+ */
+
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <sys/wait.h>
-#include "core/wake_pipe.h"
-#include "multicast/multicast.h"
-#include "transport/udp.h"
+#include <npp.h>
 
-#define TEST_PORT 9090
-#define TEST_GROUP_ID 2001
-#define TEST_PROFILE_ID 1001
+static int tests_run = 0;
+static int tests_passed = 0;
 
-/* 接收端进程 */
-int receiver_process() {
-    printf("📶 接收端启动...\n");
-    
-    /* 初始化UDP */
-    npp_udp_handle_t udp_handle;
-    npp_udp_config_t udp_config = {
-        .local_ip = "127.0.0.1",
-        .local_port = TEST_PORT,
-        .remote_ip = "127.0.0.1",
-        .remote_port = TEST_PORT + 1,
-        .timeout_ms = 5000
-    };
-    if (npp_udp_init(&udp_handle, udp_config) != NPP_OK) {
-        printf("❌ 接收端UDP初始化失败\n");
-        return 1;
-    }
-    
-    /* 初始化唤醒管道 */
-    npp_wake_pipe_t wake_pipe;
-    npp_wake_pipe_init(&wake_pipe, NPP_STRATEGY_ON_DEMAND);
-    npp_wake_pipe_register_profile(&wake_pipe, TEST_PROFILE_ID, 0.1f);
-    
-    /* 创建多播组并加入 */
-    npp_multicast_create_group(&wake_pipe, TEST_GROUP_ID, 0x12345678);
-    npp_multicast_join_group(&wake_pipe, TEST_GROUP_ID, getpid());
-    
-    /* 接收数据 */
-    uint8_t buf[1024];
-    size_t recv_len;
-    int recv_count = 0;
-    
-    printf("📶 接收端等待数据...\n");
-    for (int i = 0; i < 10; i++) {
-        if (npp_udp_recv(&udp_handle, buf, sizeof(buf), &recv_len) == NPP_OK && recv_len > 0) {
-            recv_count++;
-            printf("📶 收到数据包，长度: %zu字节\n", recv_len);
-            
-            /* 处理多播唤醒帧 */
-            if (recv_len >= sizeof(npp_multicast_wake_frame_t)) {
-                npp_multicast_handle_frame(&wake_pipe, (npp_multicast_wake_frame_t*)buf, recv_len);
-            }
-        }
-        usleep(100000);
-    }
-    
-    printf("📶 接收端共收到%d个数据包\n", recv_count);
-    npp_udp_close(&udp_handle);
-    return recv_count > 0 ? 0 : 1;
+#define TEST_ASSERT(cond, msg) do { \
+    tests_run++; \
+    if (cond) { \
+        tests_passed++; \
+        printf("  PASS: %s\n", msg); \
+    } else { \
+        printf("  FAIL: %s\n", msg); \
+    } \
+} while(0)
+
+/* Test 1: Version string */
+static void test_version(void) {
+    printf("\n[Test] Version\n");
+    const char* ver = npp_version_string();
+    TEST_ASSERT(ver != NULL, "Version string not NULL");
+    TEST_ASSERT(strstr(ver, "2.") != NULL, "Version starts with 2.");
 }
 
-/* 发送端进程 */
-int sender_process() {
-    printf("📤 发送端启动...\n");
-    sleep(1); /* 等待接收端就绪 */
-    
-    /* 初始化UDP */
-    npp_udp_handle_t udp_handle;
-    npp_udp_config_t udp_config = {
-        .local_ip = "127.0.0.1",
-        .local_port = TEST_PORT + 1,
-        .remote_ip = "127.0.0.1",
-        .remote_port = TEST_PORT,
-        .timeout_ms = 5000
+/* Test 2: Session create/destroy */
+static void test_session_lifecycle(void) {
+    printf("\n[Test] Session Lifecycle\n");
+    npp_session_t* session = NULL;
+    npp_session_config_t cfg = {
+        .transport = NPP_TRANSPORT_UDP,
+        .local_port = 0,  /* Let OS assign */
+        .remote_port = 0,
+        .remote_addr = "127.0.0.1"
     };
-    if (npp_udp_init(&udp_handle, udp_config) != NPP_OK) {
-        printf("❌ 发送端UDP初始化失败\n");
-        return 1;
-    }
-    
-    /* 初始化唤醒管道 */
-    npp_wake_pipe_t wake_pipe;
-    npp_wake_pipe_init(&wake_pipe, NPP_STRATEGY_ON_DEMAND);
-    npp_wake_pipe_register_profile(&wake_pipe, TEST_PROFILE_ID, 0.1f);
-    
-    /* 创建多播组并发送唤醒 */
-    npp_multicast_create_group(&wake_pipe, TEST_GROUP_ID, 0x12345678);
-    npp_multicast_send_wake(&wake_pipe, TEST_GROUP_ID);
-    
-    /* 发送测试数据 */
-    uint8_t test_data[] = "NPP E2E Test Data";
-    for (int i = 0; i < 5; i++) {
-        npp_udp_send(&udp_handle, test_data, sizeof(test_data));
-        printf("📤 发送数据包%d\n", i + 1);
-        usleep(200000);
-    }
-    
-    npp_udp_close(&udp_handle);
-    return 0;
+
+    npp_err_t err = npp_session_create(&session, &cfg);
+    TEST_ASSERT(err == NPP_OK, "Session create returns OK");
+    TEST_ASSERT(session != NULL, "Session handle not NULL");
+
+    err = npp_session_destroy(session);
+    TEST_ASSERT(err == NPP_OK, "Session destroy returns OK");
 }
 
-int main() {
-    printf("===== NPP SDK 端到端测试 =====\n");
-    
-    pid_t pid = fork();
-    if (pid == 0) {
-        /* 子进程：接收端 */
-        exit(receiver_process());
-    } else if (pid > 0) {
-        /* 父进程：发送端 */
-        int sender_ret = sender_process();
-        
-        /* 等待接收端结束 */
-        int status;
-        waitpid(pid, &status, 0);
-        int receiver_ret = WEXITSTATUS(status);
-        
-        if (sender_ret == 0 && receiver_ret == 0) {
-            printf("\n🎉 端到端测试通过！UDP传输+多播唤醒流程正常\n");
-            return 0;
-        } else {
-            printf("\n❌ 端到端测试失败，发送端返回:%d，接收端返回:%d\n", sender_ret, receiver_ret);
-            return 1;
-        }
-    } else {
-        printf("❌ fork失败\n");
-        return 1;
+/* Test 3: Pipe write/read */
+static void test_pipe_write_read(void) {
+    printf("\n[Test] Pipe Write/Read\n");
+    npp_session_t* session = NULL;
+    npp_session_config_t cfg = {
+        .transport = NPP_TRANSPORT_UDP,
+        .local_port = 0,
+        .remote_port = 0,
+        .remote_addr = "127.0.0.1"
+    };
+
+    npp_err_t err = npp_session_create(&session, &cfg);
+    if (err != NPP_OK) {
+        printf("  SKIP: Cannot create session\n");
+        return;
     }
+
+    /* Write to pipe 0 */
+    uint8_t write_data[] = {1, 2, 3, 4, 5};
+    err = npp_pipe_write(session, 0, write_data, sizeof(write_data));
+    TEST_ASSERT(err == NPP_OK, "Pipe write returns OK");
+
+    /* Read from pipe 0 */
+    uint8_t read_data[16] = {0};
+    uint32_t read_len = sizeof(read_data);
+    err = npp_pipe_read(session, 0, read_data, &read_len);
+    TEST_ASSERT(err == NPP_OK, "Pipe read returns OK");
+    TEST_ASSERT(read_len == sizeof(write_data), "Read length matches");
+    TEST_ASSERT(memcmp(write_data, read_data, read_len) == 0, "Read data matches");
+
+    npp_session_destroy(session);
+}
+
+/* Test 4: Callback registration */
+static void test_callback_registration(void) {
+    printf("\n[Test] Callback Registration\n");
+    npp_session_t* session = NULL;
+    npp_session_config_t cfg = {
+        .transport = NPP_TRANSPORT_UDP,
+        .local_port = 0,
+        .remote_port = 0,
+        .remote_addr = "127.0.0.1"
+    };
+
+    npp_err_t err = npp_session_create(&session, &cfg);
+    if (err != NPP_OK) {
+        printf("  SKIP: Cannot create session\n");
+        return;
+    }
+
+    err = npp_pipe_on_data(session, 0, NULL, NULL);
+    TEST_ASSERT(err == NPP_OK, "Callback registration returns OK");
+
+    npp_session_destroy(session);
+}
+
+/* Test 5: Error handling */
+static void test_error_handling(void) {
+    printf("\n[Test] Error Handling\n");
+
+    /* NULL session should fail */
+    uint8_t data[] = {1};
+    npp_err_t err = npp_pipe_write(NULL, 0, data, 1);
+    TEST_ASSERT(err == NPP_ERR_INVALID_PARAM, "NULL session returns INVALID_PARAM");
+
+    /* NULL config should fail */
+    npp_session_t* session = NULL;
+    err = npp_session_create(&session, NULL);
+    TEST_ASSERT(err == NPP_ERR_INVALID_PARAM, "NULL config returns INVALID_PARAM");
+}
+
+int main(void) {
+    printf("=== NPP SDK Basic Tests ===\n");
+
+    test_version();
+    test_session_lifecycle();
+    test_pipe_write_read();
+    test_callback_registration();
+    test_error_handling();
+
+    printf("\n=== Results: %d/%d passed ===\n", tests_passed, tests_run);
+    return (tests_passed == tests_run) ? 0 : 1;
 }
