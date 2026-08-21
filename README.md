@@ -6,7 +6,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License%20(Open%20Source)-MIT-yellow.svg)](LICENSE)
 [![C](https://img.shields.io/badge/C-99-blue.svg)](https://en.wikipedia.org/wiki/C99)
-[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20MCU-green.svg)]()
+[![Platform](https://img.shields.io/badge/Platform-Linux%20%7C%20macOS%20%7C%20Windows%20%7C%20MCU-green.svg)]()
+[![Version](https://img.shields.io/badge/Version-1.0.260821.1-blue.svg)](VERSION)
 [![Build](https://img.shields.io/badge/Build-CMake-blue.svg)]()
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21844224-blue.svg)](https://zenodo.org/doi/10.5281/zenodo.21844224)
 [![ORCID](https://img.shields.io/badge/ORCID-0009--0007--6411--7426-green)](https://orcid.org/0009-0007-6411-7426)
@@ -142,9 +143,16 @@ int main() {
 ```
 
 Compile and run:
+**Linux/macOS:**
 ```bash
 gcc -o my_app my_app.c -I./include -L./lib -lnpp
 ./my_app
+```
+
+**Windows (Visual Studio Developer Command Prompt):**
+```cmd
+cl my_app.c /I./include /link /LIBPATH:./lib npp.lib
+my_app.exe
 ```
 
 ---

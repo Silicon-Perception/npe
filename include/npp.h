@@ -3,7 +3,7 @@
  * Licensed under the NPP SDK Semi-Open Source License.
  * See LICENSE file for details.
  * 
- * NPP SDK v2.0 - Public API
+ * NPP SDK v1.0 - Public API
  * Based on NPE (Natural Pipeline Engine) architecture
  * 
  * 本头文件仅暴露公共API接口，所有内部实现细节均已隐藏。
@@ -23,10 +23,11 @@ extern "C" {
  * Version Info
  *============================================================================*/
 
-#define NPP_VERSION_MAJOR 2
+#define NPP_VERSION_MAJOR 1
 #define NPP_VERSION_MINOR 0
-#define NPP_VERSION_PATCH 0
-#define NPP_VERSION_STRING "2.0.0"
+#define NPP_VERSION_PATCH 1
+#define NPP_VERSION_DATE 260821
+#define NPP_VERSION_STRING "1.0.260821.1"
 
 /*=============================================================================
  * Opaque Handles (不透明句柄 - 用户无法访问内部结构)

@@ -4,7 +4,7 @@ All notable changes to NPP SDK will be documented in this file.
 
 ---
 
-## [v2.0.0] - 2026-08-20
+## [1.0.260821.1] - 2026-08-21
 
 ### Added
 - **Core Architecture**: Pipeline-based network communication framework

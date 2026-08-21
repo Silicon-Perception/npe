@@ -24,7 +24,7 @@ if [ ! -d .git ]; then
     echo "[1/5] 初始化Git仓库..."
     git init
     git add .
-    git commit -m "NPP SDK v2.0 - Initial Release"
+    git commit -m "NPP SDK v1.0.260821.1 - Initial Release"
 else
     echo "[1/5] Git仓库已存在 ✓"
 fi

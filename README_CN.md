@@ -6,7 +6,8 @@
 
 [![License: MIT](https://img.shields.io/badge/许可证-MIT-yellow.svg)](LICENSE)
 [![C](https://img.shields.io/badge/C-99-blue.svg)](https://en.wikipedia.org/wiki/C99)
-[![Platform](https://img.shields.io/badge/平台-Linux%20%7C%20macOS%20%7C%20MCU-green.svg)]()
+[![Platform](https://img.shields.io/badge/平台-Linux%20%7C%20macOS%20%7C%20Windows%20%7C%20MCU-green.svg)]()
+[![Version](https://img.shields.io/badge/版本-1.0.260821.1-blue.svg)](VERSION)
 [![Build](https://img.shields.io/badge/构建-CMake-blue.svg)]()
 [![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.21844224-blue.svg)](https://zenodo.org/doi/10.5281/zenodo.21844224)
 [![ORCID](https://img.shields.io/badge/ORCID-0009--0007--6411--7426-green)](https://orcid.org/0009-0007-6411-7426)
@@ -143,8 +144,16 @@ int main() {
 
 编译运行：
 ```bash
+# Linux / macOS
 gcc -o my_app my_app.c -I./include -L./lib -lnpp
 ./my_app
+
+# Windows (Visual Studio)
+# 1. 打开 "Developer Command Prompt for VS"
+# 2. mkdir build && cd build
+# 3. cmake .. -G "Visual Studio 16 2019" -A x64
+# 4. cmake --build . --config Release
+# 5. 输出: build/Release/npp.lib
 ```
 
 ---

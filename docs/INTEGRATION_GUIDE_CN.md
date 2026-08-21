@@ -15,12 +15,16 @@ cd npe
 
 ### 2. 编译运行
 
+**Linux/macOS:**
 ```bash
-# 使用预编译库编译
 gcc -o demo examples/quick_start.c -I./include -L./lib -lnpp
-
-# 运行
 ./demo
+```
+
+**Windows (Visual Studio 开发者命令提示符):**
+```cmd
+cl demo.c examples/quick_start.c /I./include /link /LIBPATH:./lib npp.lib
+demo.exe
 ```
 
 ## 协议概念
@@ -53,13 +57,14 @@ gcc -o demo examples/quick_start.c -I./include -L./lib -lnpp
 ```c
 #include <npp.h>
 
-// 管道数据接收回调
-void on_data(uint32_t pipe_id, const uint8_t* data, uint32_t len, void* user_data) {
+/* 管道数据接收回调 */
+static void on_data(uint32_t pipe_id, const uint8_t* data, uint32_t len, void* user_data) {
+    (void)user_data;
     printf("管道 %u 收到 %u 字节\n", pipe_id, len);
 }
 
-int main() {
-    // 1. 配置会话
+int main(void) {
+    /* 1. 配置会话 */
     npp_session_config_t cfg = {
         .transport = NPP_TRANSPORT_UDP,
         .local_port = 8888,
@@ -67,75 +72,66 @@ int main() {
         .remote_port = 9999
     };
 
-    // 2. 创建会话
-    npp_session_t* session;
+    /* 2. 创建会话 */
+    npp_session_t* session = NULL;
     npp_session_create(&session, &cfg);
 
-    // 3. 注册管道 #0 的回调
+    /* 3. 注册管道 #0 的回调 */
     npp_pipe_on_data(session, 0, on_data, NULL);
 
-    // 4. 连接
+    /* 4. 连接 */
     npp_session_connect(session);
 
-    // 5. 写入数据（变化时自动传输）
+    /* 5. 写入数据（变化时自动传输） */
     uint8_t data[] = {1, 2, 3, 4};
     npp_pipe_write(session, 0, data, sizeof(data));
 
-    // 6. 清理
+    /* 6. 清理 */
     npp_session_disconnect(session);
     npp_session_destroy(session);
     return 0;
 }
 ```
 
-### 处理管道变化
-
-```c
-// 为特定管道注册回调
-npp_pipe_on_data(session, 0, [](uint32_t pipe_id, const uint8_t* data, uint32_t len, void* user_data) {
-    printf("管道 %u 变化: %.*s\n", pipe_id, len, data);
-}, NULL);
-```
-
 ### 蓄水池使用
 
 ```c
-// 创建蓄水池
+/* 创建蓄水池 */
 npp_reservoir_config_t res_cfg = {
     .pipe_id = 0,
     .threshold = 100.0f,
     .timeout_ms = 100
 };
-npp_reservoir_t* reservoir;
+npp_reservoir_t* reservoir = NULL;
 npp_reservoir_create(&reservoir, &res_cfg);
 
-// 添加数据（达到阈值自动交付）
+/* 添加数据（达到阈值自动交付） */
 npp_reservoir_add(reservoir, data, len);
 
-// 或手动触发交付
+/* 或手动触发交付 */
 npp_reservoir_flush(reservoir);
 ```
 
 ### 服务端模式
 
 ```c
-// 创建服务端
+/* 创建服务端 */
 npp_server_config_t srv_cfg = {
     .transport = NPP_TRANSPORT_UDP,
     .port = 9999,
     .max_clients = 100
 };
-npp_server_t* server;
+npp_server_t* server = NULL;
 npp_server_create(&server, &srv_cfg);
 
-// 启动监听
+/* 启动监听 */
 npp_server_start(server);
 
-// 广播到所有客户端
+/* 广播到所有客户端 */
 uint8_t msg[] = "Hello all!";
 npp_server_broadcast(server, msg, sizeof(msg));
 
-// 停止并清理
+/* 停止并清理 */
 npp_server_stop(server);
 npp_server_destroy(server);
 ```
@@ -162,15 +158,18 @@ IDLE → CONNECTING → ACTIVE
 ## 日志
 
 ```c
-// 设置日志回调
-npp_set_log_callback([](npp_log_level_t level, const char* message) {
-    printf("[NPP] %s\n", message);
-});
+/* 设置日志回调 */
+static void log_handler(npp_log_level_t level, const char* message) {
+    printf("[NPP:%d] %s\n", level, message);
+}
+npp_set_log_callback(log_handler);
 
-// 设置错误回调
-npp_set_error_callback([](npp_err_t error, const char* message, void* user_data) {
+/* 设置错误回调 */
+static void error_handler(npp_err_t error, const char* message, void* user_data) {
+    (void)user_data;
     fprintf(stderr, "NPP 错误 %d: %s\n", error, message);
-});
+}
+npp_set_error_callback(error_handler);
 ```
 
 ## 网络行为
@@ -188,6 +187,41 @@ npp_set_error_callback([](npp_err_t error, const char* message, void* user_data)
 1. **断网 < 超时**：自动重连，无数据丢失
 2. **断网 > 超时**：重连后全量 SYNC
 3. **服务端重启**：客户端检测到超时，主动 SYNC
+
+## 平台特定说明
+
+### Linux
+
+```bash
+gcc -o app app.c -I./include -L./lib -lnpp
+```
+
+### macOS
+
+```bash
+gcc -o app app.c -I./include -L./lib -lnpp
+```
+
+### Windows
+
+预编译库不包含 Windows 版本。从源码编译：
+
+1. 安装 Visual Studio 2019+ 及 C++ 桌面开发组件
+2. 打开开发者命令提示符
+3. 编译：
+   ```cmd
+   mkdir build && cd build
+   cmake .. -G "Visual Studio 16 2019" -A x64
+   cmake --build . --config Release
+   ```
+4. 链接：`/LIBPATH:build/Release npp.lib`
+
+### MCU（嵌入式）
+
+```c
+/* MCU 仅使用静态库 */
+#define NPP_MAX_PIPES 64
+```
 
 ## 安全
 
@@ -213,30 +247,6 @@ npp_set_error_callback([](npp_err_t error, const char* message, void* user_data)
 sudo tcpdump -i any port 9999 -w npp_capture.pcap
 ```
 
-## 平台特定说明
-
-### Linux
-
-```bash
-# 使用静态库编译
-gcc -o app app.c -I./include -L./lib -lnpp
-```
-
-### macOS
-
-```bash
-# 使用静态库编译
-gcc -o app app.c -I./include -L./lib -lnpp
-```
-
-### MCU（嵌入式）
-
-```c
-// MCU 仅使用静态库
-// 内存受限：减少 MAX_PIPES 到 64
-#define NPP_MAX_PIPES 64
-```
-
 ## 性能调优
 
 ### 蓄水池配置
@@ -244,8 +254,8 @@ gcc -o app app.c -I./include -L./lib -lnpp
 ```c
 npp_reservoir_config_t cfg = {
     .pipe_id = 0,
-    .threshold = 100.0f,    // 交付阈值
-    .timeout_ms = 100        // 最大批量窗口
+    .threshold = 100.0f,    /* 交付阈值 */
+    .timeout_ms = 100        /* 最大批量窗口 */
 };
 ```
 
