@@ -250,6 +250,50 @@ npp_session_config_t cfg = {
   cfg.max_frame_size = 8192;  // For local networks
   ```
 
+## Thread Safety and Memory Management
+
+### Thread Safety
+
+| Function | Thread Safe | Notes |
+|----------|-------------|-------|
+| npp_session_create() | ✅ Yes | Call once per session |
+| npp_session_destroy() | ✅ Yes | Call once per session |
+| npp_pipe_write() | ✅ Yes | Can be called from multiple threads |
+| npp_poll() | ❌ No | Single thread per session |
+| npp_on_change() | ✅ Yes | Register before connect |
+
+**Recommended pattern**:
+- One thread for `npp_poll()` (event loop)
+- Any thread can call `npp_pipe_write()`
+- Register callbacks before `npp_session_connect()`
+
+### Memory Management
+
+| Object | Allocated By | Freed By |
+|--------|--------------|----------|
+| npp_session_t | npp_session_create() | npp_session_destroy() |
+| npp_session_config_t | Caller (stack) | Caller |
+| Pipe data (write) | Caller | Caller (after npp_pipe_write returns) |
+| Pipe data (read) | SDK (internal buffer) | SDK (on next poll or destroy) |
+
+**Important**: 
+- `npp_pipe_write()` copies the data immediately — caller can free after return
+- Read callbacks provide data pointer valid only during callback execution
+- Copy data if you need it after callback returns
+
+### Callback Context
+
+| Callback | Executed In | Can Block |
+|----------|-------------|-----------|
+| npp_on_change() | npp_poll() thread | ❌ No |
+| npp_on_session_event() | npp_poll() thread | ❌ No |
+
+**Important**:
+- Callbacks execute in the `npp_poll()` thread
+- Do NOT call `npp_poll()` from within a callback
+- Do NOT perform long-running operations in callbacks
+- Use queues to defer work to other threads
+
 ## Getting Help
 
 - GitHub Issues: https://github.com/Silicon-Perception/npe/issues

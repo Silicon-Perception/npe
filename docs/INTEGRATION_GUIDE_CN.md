@@ -250,6 +250,50 @@ npp_session_config_t cfg = {
   cfg.max_frame_size = 8192;  // 用于本地网络
   ```
 
+## 线程安全与内存管理
+
+### 线程安全
+
+| 函数 | 线程安全 | 说明 |
+|------|----------|------|
+| npp_session_create() | ✅ 是 | 每会话调用一次 |
+| npp_session_destroy() | ✅ 是 | 每会话调用一次 |
+| npp_pipe_write() | ✅ 是 | 可从多线程调用 |
+| npp_poll() | ❌ 否 | 每会话单线程 |
+| npp_on_change() | ✅ 是 | connect 前注册 |
+
+**推荐模式**:
+- 一个线程用于 `npp_poll()`（事件循环）
+- 任何线程都可调用 `npp_pipe_write()`
+- 在 `npp_session_connect()` 前注册回调
+
+### 内存管理
+
+| 对象 | 分配者 | 释放者 |
+|------|--------|--------|
+| npp_session_t | npp_session_create() | npp_session_destroy() |
+| npp_session_config_t | 调用者（栈） | 调用者 |
+| 管道数据（写） | 调用者 | 调用者（npp_pipe_write 返回后） |
+| 管道数据（读） | SDK（内部缓冲） | SDK（下次 poll 或 destroy 时） |
+
+**重要**: 
+- `npp_pipe_write()` 立即复制数据 — 调用者返回后即可释放
+- 读取回调提供的数据指针仅在回调执行期间有效
+- 如果需要在回调后保留数据，请复制
+
+### 回调上下文
+
+| 回调 | 执行线程 | 可阻塞 |
+|------|----------|--------|
+| npp_on_change() | npp_poll() 线程 | ❌ 否 |
+| npp_on_session_event() | npp_poll() 线程 | ❌ 否 |
+
+**重要**:
+- 回调在 `npp_poll()` 线程中执行
+- 不要在回调内调用 `npp_poll()`
+- 不要在回调中执行长时间操作
+- 使用队列将工作延迟到其他线程
+
 ## 获取帮助
 
 - Gitee Issues: https://gitee.com/Silicon-Perception/npe/issues
