@@ -47,8 +47,8 @@ endif()
 set(CMAKE_C_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 
-# Note: Full control-flow obfuscation requires O-LLVM build environment.
-# See internal build documentation for obfuscation process.
+# Note: Full source code is not included in the public repository.
+# This is a reference build configuration only.
 
 #=============================================================================
 # Library Target

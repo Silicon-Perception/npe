@@ -1,4 +1,4 @@
-# Internal source code - DO NOT expose
+# Private source code
 src/internal/
 
 # Build outputs
