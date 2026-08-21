@@ -14,6 +14,12 @@ All notable changes to NPP SDK will be documented in this file.
 - **Examples**: Quick start and sensor examples
 - **Tests**: Basic API and session/pipe tests
 
+### Technical Features
+- Incremental transmission: only changed data is transmitted
+- No connection state management
+- Frame ID-based state detection
+- Application-layer encryption support
+
 ### Documentation
 - README (English & Chinese)
 - FAQ and Getting Started Guide
