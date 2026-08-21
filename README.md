@@ -44,6 +44,7 @@ NPP is based on NPE (Natural Pipeline Engine) architecture, transforming network
 **NPP Design Features:**
 - **Silence is proof**: No data change indicates device is online (no explicit heartbeat needed)
 - **Incremental updates**: Core operations focus on detecting and transmitting changes
+- **Zero computation**: Core operations are comparison and assignment, no multipliers, dividers, transforms, or entropy coding
 
 ---
 
