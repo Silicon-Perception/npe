@@ -32,11 +32,11 @@
 ```bash
 # Fork 仓库
 # 克隆你的Fork
-git clone https://github.com/YOUR_USERNAME/npp-sdk.git
-cd npp-sdk
+git clone https://github.com/YOUR_USERNAME/npe.git
+cd npe
 
 # 添加上游仓库
-git remote add upstream https://gitee.com/Silicon-Perception/npp-sdk.git
+git remote add upstream https://gitee.com/Silicon-Perception/npe.git
 
 # 创建分支
 git checkout -b feature/your-feature-name
@@ -87,7 +87,7 @@ git push origin feature/your-feature-name
 
 ### 开源部分Bug
 
-通过 [Gitee Issues](https://gitee.com/Silicon-Perception/npp-sdk/issues) 报告：
+通过 [Gitee Issues](https://gitee.com/Silicon-Perception/npe/issues) 报告：
 
 ```markdown
 **描述**: 简述问题
