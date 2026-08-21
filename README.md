@@ -1,6 +1,6 @@
-# NPP SDK - High-Performance Network Communication Engine Based on NPE Architecture
+# NPP SDK - Lightweight IoT Communication Protocol Stack
 
-> Pure C-language implementation of a semi-open-source network communication protocol stack, replacing traditional full transmission with incremental transmission paradigm, significantly reducing computing and bandwidth overhead.
+> Pure C-language implementation of an open-source network communication protocol stack, featuring incremental transmission design for low-power, low-bandwidth IoT scenarios.
 
 <div align="center">
 
@@ -27,19 +27,19 @@ NPP is based on NPE (Natural Pipeline Engine) architecture, transforming network
 
 ---
 
-## ⚡ Traditional vs NPP: Communication Paradigm Comparison
+## ⚡ Communication Paradigm Comparison
 
-### Traditional Network Communication
+### Traditional Polling Approach
 ![Traditional Communication](images/a1.gif)
-- **Full transmission**: Complete data transmitted every frame, even if 99% of data remains unchanged
-- **Periodic heartbeat**: Continuous keep-alive packets even when device is idle, consuming bandwidth and power
-- **Computation-intensive**: CPU participates in packet assembly/disassembly, verification/retransmission
+- Periodic data queries, even when most data hasn't changed
+- Connection management overhead
+- CPU involved in packet processing
 
-### NPP Network Communication
+### NPP Approach
 ![NPP Communication](images/a2.gif)
-- **Incremental transmission**: Only changed pipeline data is transmitted; zero bandwidth when static
-- **Silence is proof**: No data change = device online, no heartbeat needed
-- **Comparison-driven**: Core operations are only comparison and assignment, no multiplication/division
+- Incremental transmission: only changed data is transmitted
+- No connection state management
+- Simple compare-and-update operations
 
 ---
 
@@ -159,13 +159,11 @@ my_app.exe
 
 ## 📊 Performance Characteristics
 
-### Bandwidth Efficiency
+### Design Goals
 
-| Scenario | Traditional MQTT | NPP | Savings |
-|----------|-----------------|-----|---------|
-| Static (no changes) | ~1KB/s | 0 | **~100%** |
-| Low activity (10% pipes) | ~1KB/s | ~50B/s | **95%** |
-| High activity (all pipes) | ~1KB/s | ~400B/s | **60%** |
+- **Incremental transmission**: Only changed data is transmitted
+- **Low overhead**: Minimal protocol overhead for small data packets
+- **Flexible**: Supports various IoT and embedded scenarios
 
 ### Test Coverage
 
