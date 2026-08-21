@@ -267,7 +267,7 @@ NPP defends against:
 
 ### 8.1 Wire Format
 
-NPP wire format is **stable since v2.0**. v2.x clients can communicate with v2.x servers.
+NPP wire format is **stable**. Clients and servers with the same major version can interoperate.
 
 ### 8.2 Ports
 

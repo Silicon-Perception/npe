@@ -270,7 +270,7 @@ void npp_set_error_callback(npp_on_error_cb_t cb);
 
 /**
  * 获取版本字符串
- * @return 版本字符串，如 "2.0.0"
+ * @return 版本字符串，如 "1.0.260821.1"
  */
 const char* npp_version_string(void);
 
