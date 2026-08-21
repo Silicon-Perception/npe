@@ -49,6 +49,8 @@ MAJOR.MINOR.YYMMDD.N
 
 ## 发布流程
 
+### 标准发布检查清单
+
 1. 更新代码和功能
 2. 更新 `VERSION` 文件
 3. 同步更新以下文件：
@@ -57,7 +59,63 @@ MAJOR.MINOR.YYMMDD.N
    - `lib/README.md` — Version 章节
    - `README.md` / `README_CN.md` — Version badge
 4. 更新 `CHANGELOG.md`
-5. 提交代码并创建 Git tag
+5. **编译混淆版本**（见下方混淆流程）
+6. 提交代码并创建 Git tag
+
+### 代码混淆流程
+
+**每次发布预编译库时必须执行混淆编译。**
+
+#### 混淆级别
+
+| 级别 | 标志 | 说明 |
+|------|------|------|
+| 基础 | `-mllvm -flatten` | 控制流平坦化 |
+| 中级 | `-mllvm -bcf` | 虚假控制流 |
+| 高级 | `-mllvm -sub` | 指令替换 |
+| 字符串 | `-mllvm -sobf` | 字符串加密 |
+
+#### 编译命令
+
+```bash
+# 使用 Clang + O-LLVM 编译混淆版本
+mkdir build && cd build
+cmake .. \
+    -DCMAKE_C_COMPILER=clang \
+    -DNPP_OBFUSCATE=ON \
+    -DCMAKE_BUILD_TYPE=Release
+cmake --build .
+
+# 验证混淆效果
+nm libnpp.a | head -20  # 检查符号是否被混淆
+```
+
+#### 混淆验证清单
+
+- [ ] 控制流平坦化已启用
+- [ ] 虚假控制流已启用
+- [ ] 指令替换已启用
+- [ ] 字符串加密已启用（如可用）
+- [ ] 符号表已剥离（`strip -S`）
+- [ ] 调试信息已移除（`-g0`）
+- [ ] 混淆后库文件大小正常
+- [ ] 混淆后功能测试通过
+
+#### 注意事项
+
+1. **O-LLVM 安装**：混淆需要安装 O-LLVM 编译器
+   ```bash
+   # 安装 O-LLVM（示例）
+   git clone https://github.com/obfuscator-llvm/obfuscator.git
+   cd obfuscator && mkdir build && cd build
+   cmake .. && make -j$(nproc)
+   ```
+
+2. **备份原始库**：混淆前保留原始库文件备份
+
+3. **测试验证**：混淆后必须运行完整测试套件
+
+4. **版本记录**：记录每次混淆使用的参数和编译器版本
 
 ## Git Tag 格式
 

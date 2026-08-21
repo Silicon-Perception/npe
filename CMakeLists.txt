@@ -42,19 +42,39 @@ elseif(PLATFORM_WINDOWS)
 endif()
 
 #=============================================================================
-# Obfuscation Options (O-LLVM)
+# Obfuscation Options
 #=============================================================================
 
-# O-LLVM obfuscation (requires O-LLVM installation)
-# Install: https://github.com/obfuscator-llvm/obfuscator
-#
-# set(OBFUSCATION_FLAGS
-#     -mllvm -flatten      # Control flow flattening
-#     -mllvm -bcf          # Bogus control flow
-#     -mllvm -sub          # Instruction substitution
-#     -mllvm -sobf         # String obfuscation
-# )
-# set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OBFUSCATION_FLAGS}")
+# Code obfuscation for protecting intellectual property
+# Set to ON to enable obfuscation (requires O-LLVM or clang)
+option(NPP_OBFUSCATE "Enable code obfuscation" OFF)
+
+if(NPP_OBFUSCATE)
+    message(STATUS "Code obfuscation: ENABLED")
+    
+    # Check for O-LLVM or use clang as fallback
+    if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+        # Clang obfuscation passes
+        set(OBFUSCATION_FLAGS
+            -mllvm -flatten      # Control flow flattening
+            -mllvm -bcf          # Bogus control flow  
+            -mllvm -sub          # Instruction substitution
+        )
+        
+        # Check if O-LLVM is available (has -sobf for string obfuscation)
+        if(HAVE_OBFUSCATOR_SOBF)
+            list(APPEND OBFUSCATION_FLAGS -mllvm -sobf)
+        endif()
+        
+        set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OBFUSCATION_FLAGS}")
+        message(STATUS "Obfuscation flags: ${OBFUSCATION_FLAGS}")
+    else()
+        message(WARNING "Obfuscation requires Clang compiler. Current compiler: ${CMAKE_C_COMPILER_ID}")
+        message(WARNING "Please install O-LLVM: https://github.com/obfuscator-llvm/obfuscator")
+    endif()
+else()
+    message(STATUS "Code obfuscation: DISABLED (use -DNPP_OBFUSCATE=ON to enable)")
+endif()
 
 #=============================================================================
 # Library Target
