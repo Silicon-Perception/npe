@@ -28,4 +28,4 @@ All notable changes to NPP SDK will be documented in this file.
 
 ---
 
-*This project follows semantic versioning.*
+*This project uses MAJOR.MINOR.YYMMDD.N versioning.*
